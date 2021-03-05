@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">recycleView</string>
+    <string name="hint">在此处输入内容</string>
+    <string name="returntosearch">返回搜索页面</string>
+    <string name="toast">点击显示toast</string>
+    <string name="cancel">取消</string>
+</resources>
