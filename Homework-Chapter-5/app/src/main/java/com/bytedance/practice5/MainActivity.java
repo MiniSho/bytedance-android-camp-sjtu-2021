@@ -84,12 +84,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 String urlStr;
-                if(studentId == null) {
-                    urlStr = Constants.BASE_URL + "messages";
-                }
-                else{
-                    urlStr = String.format(Constants.BASE_URL + "messages?student_id=%s", studentId);
-                }
+
+                urlStr = studentId == null?Constants.BASE_URL + "messages": String.format(Constants.BASE_URL + "messages?student_id=%s", studentId);
                 Log.d(TAG, "getData: "+urlStr);
 
                 MessageListResponse result = null;
@@ -118,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
                         });
 
                     } else{
-                        Log.d(TAG, "getData: " + conn.getResponseCode());
                         Log.i("getData","it's empty: " + conn.getResponseCode());
                     }
                     conn.disconnect();

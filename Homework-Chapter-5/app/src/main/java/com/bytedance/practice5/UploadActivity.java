@@ -14,10 +14,14 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bytedance.practice5.model.Upload;
 import com.bytedance.practice5.model.UploadResponse;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.gson.Gson;
 
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -159,6 +163,64 @@ public class UploadActivity extends AppCompatActivity {
 
     // TODO 7 选做 用URLConnection的方式实现提交
     private void submitMessageWithURLConnection(){
+        byte[] coverImageData = readDataFromUri(coverImageUri);
+        if (coverImageData == null || coverImageData.length == 0) {
+            Toast.makeText(this, "封面不存在", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String to = toEditText.getText().toString();
+        if (TextUtils.isEmpty(to)) {
+            Toast.makeText(this, "请输入TA的名字", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String content = contentEditText.getText().toString();
+        if (TextUtils.isEmpty(content)) {
+            Toast.makeText(this, "请输入想要对TA说的话", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if ( coverImageData.length >= MAX_FILE_SIZE) {
+            Toast.makeText(this, "文件过大", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
+        String urlStr = String.format(Constants.BASE_URL + "messages?student_id=%s&extra_value=%s", Constants.STUDENT_ID, "test");
+        try{
+            Upload uploadBody = new Upload();
+            uploadBody.setFrom(Constants.USER_NAME);
+            uploadBody.setTo(to);
+            uploadBody.setContent(content);
+            RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), coverImageData);
+            MultipartBody.Part imageBody = MultipartBody.Part.createFormData("image", "cover.png", requestBody);
+            uploadBody.setImage(imageBody);
+
+            byte[] body = new Gson().toJson(uploadBody).getBytes();
+
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(6000);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("accept", "application/json");
+            conn.setRequestProperty("token", Constants.token);
+
+            conn.getOutputStream().write(body);
+            conn.getOutputStream().flush();
+
+            if (conn.getResponseCode() == 200) {
+                finish();
+            }
+            else {
+                Log.i("getData","it's empty: " + conn.getResponseCode());
+            }
+
+            conn.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
 
     }
 
